@@ -5,16 +5,17 @@
  */
 package xyz.somch.db;
 
+
+import java.sql.SQLException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
-
 /**
  *
  * @author dark_
  */
 public class ConexionBD {
     public static Connection crearConexion() throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.jdbc.Driver");
         Connection conexion;
         conexion = DriverManager.getConnection(ConstantesBD.dbUrl, ConstantesBD.dbUser, ConstantesBD.dbPwd);
         return conexion;

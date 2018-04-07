@@ -46,12 +46,15 @@ public class ConstructorResponse {
 	
 	public static Response createResponse( Response.Status status, List<JsonSerializable> json ) throws JSONException {
 		JSONArray jsonArray = new JSONArray();
-		
+		          System.out.println(json.toString());
 		for( int i = 0; i < json.size(); i++ ) {
 			jsonArray.put( json.get(i).toJson() );
 		}
+                
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("usuario",jsonArray);
 		
-		return Response.status( status ).entity( jsonArray.toString() ).build();
+		return Response.status( status ).entity( jsonObject.toString() ).build();
 	}
 	
 	public static Response createResponse( Response.Status status, Map<String,Object> map ) {
@@ -68,4 +71,11 @@ public class ConstructorResponse {
 		
 		return Response.status( status ).entity( jsonObject.toString() ).build();
 	}
+        
+        /*public static Response createResponse( Response.Status status, List<Object> list) {
+            JSONArray jsonArray = new JSONArray();
+            for(int i = 0; i<list.size(); i++){
+                jsonArray.put(list.get(i).toJson());
+            }
+        }*/
 }

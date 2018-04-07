@@ -5,14 +5,27 @@
  */
 package xyz.somch.model;
 
+
+
+
+import com.google.gson.annotations.SerializedName;
+import java.util.UUID;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+import xyz.somch.utilidades.JsonSerializable;
+
 /**
  *
  * @author dark_
  */
-public class User {
+public class User implements JsonSerializable{
+    @SerializedName("id")
     private String id;
+    @SerializedName("nombre")
     private String nombre;
+    @SerializedName("password")
     private String password;
+    @SerializedName("rol")
     private String rol;
 
     public String getId() {
@@ -45,6 +58,26 @@ public class User {
 
     public void setRol(String rol) {
         this.rol = rol;
+    }
+    
+    public void setUIID(){
+        id = UUID.randomUUID().toString().replace("-", "");
+    }
+    
+    @Override
+    public String toString(){
+        return "id: " + id + " nombre: " + nombre + " password: " + password;
+    }
+
+    @Override
+    public JSONObject toJson() throws JSONException{
+        JSONObject json = new JSONObject();
+        json.put("id", getId());
+        json.put("nombre", getNombre());
+        json.put("password", getPassword());
+        json.put("Rol", getRol());
+        return json;
+
     }
     
 }

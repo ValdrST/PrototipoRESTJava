@@ -29,7 +29,7 @@ public class UserBD implements UserDAO {
             stmt = conexion.prepareStatement("SELECT * FROM usuario WHERE id=?;");
             stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
+            if (rs.next()) {
                 usuario.setId(rs.getString("id"));
                 usuario.setNombre(rs.getString("nombre"));
                 usuario.setPassword(rs.getString("password"));
@@ -37,9 +37,9 @@ public class UserBD implements UserDAO {
                 usuarios.add(usuario);
             }
             return usuarios;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return null;
     }
 
@@ -53,7 +53,7 @@ public class UserBD implements UserDAO {
             stmt = conexion.prepareStatement("SELECT * FROM usuario WHERE nombre=?;");
             stmt.setString(1, nombre);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 usuario.setId(rs.getString("id"));
                 usuario.setNombre(rs.getString("nombre"));
                 usuario.setPassword(rs.getString("password"));
@@ -61,22 +61,22 @@ public class UserBD implements UserDAO {
                 usuarios.add(usuario);
             }
             return usuarios;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return null;
     }
 
     @Override
     public List<User> findAll() {
         try {
-            List<User> usuarios = new ArrayList();
-            User usuario = new User();
+            List<User> usuarios = new ArrayList<User>();
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
-            stmt = conexion.prepareStatement("SELECT * FROM usuario;");
+            stmt = conexion.prepareStatement("SELECT id,nombre,password,rol FROM usuario;");
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
+                User usuario = new User();
                 usuario.setId(rs.getString("id"));
                 usuario.setNombre(rs.getString("nombre"));
                 usuario.setPassword(rs.getString("password"));
@@ -84,9 +84,9 @@ public class UserBD implements UserDAO {
                 usuarios.add(usuario);
             }
             return usuarios;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return null;
     }
 
@@ -100,7 +100,7 @@ public class UserBD implements UserDAO {
             stmt = conexion.prepareStatement("SELECT * FROM usuario WHERE rol=?;");
             stmt.setString(1, rol);
             ResultSet rs = stmt.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 usuario.setId(rs.getString("id"));
                 usuario.setNombre(rs.getString("nombre"));
                 usuario.setPassword(rs.getString("password"));
@@ -108,9 +108,9 @@ public class UserBD implements UserDAO {
                 usuarios.add(usuario);
             }
             return usuarios;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return null;
     }
 
@@ -126,13 +126,13 @@ public class UserBD implements UserDAO {
             stmt.setString(4, user.getRol());
             int resultado = stmt.executeUpdate();
             return resultado > 0;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return false;
     }
-    
-    public boolean setSesion(User user, Boolean sesion){
+
+    public boolean setSesion(User user, Boolean sesion) {
         try {
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
@@ -144,14 +144,14 @@ public class UserBD implements UserDAO {
             stmt.setBoolean(1, sesion);
             int resultado = stmt.executeUpdate();
             return resultado > 0;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return false;
     }
-    
-    public boolean getSesion(User user){
-        try{
+
+    public boolean getSesion(User user) {
+        try {
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
             stmt = conexion.prepareStatement("SELECT sesion FROM usuario WHERE id=? AND nombre=? AND password=? AND rol=?;");
@@ -160,10 +160,10 @@ public class UserBD implements UserDAO {
             stmt.setString(3, user.getPassword());
             stmt.setString(4, user.getRol());
             ResultSet rs = stmt.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 return rs.getBoolean("sesion");
             }
-        } catch (SQLException | ClassNotFoundException ex ) {
+        } catch (SQLException | ClassNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
         return false;
@@ -185,9 +185,9 @@ public class UserBD implements UserDAO {
             stmt.setString(8, oldUser.getRol());
             int resultado = stmt.executeUpdate();
             return resultado > 0;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return false;
     }
 
@@ -203,10 +203,11 @@ public class UserBD implements UserDAO {
             stmt.setString(4, user.getRol());
             int resultado = stmt.executeUpdate();
             return resultado > 0;
-            } catch (SQLException | ClassNotFoundException ex) {
-                System.out.println(ex.getMessage());
-            }
+        } catch (SQLException | ClassNotFoundException ex) {
+            System.out.println(ex.getMessage());
+        }
         return false;
     }
     
+
 }
