@@ -8,7 +8,6 @@ package xyz.somch.model;
 
 
 
-import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -19,14 +18,28 @@ import xyz.somch.utilidades.JsonSerializable;
  * @author dark_
  */
 public class User implements JsonSerializable{
-    @SerializedName("id")
     private String id;
-    @SerializedName("nombre")
     private String nombre;
-    @SerializedName("password")
     private String password;
-    @SerializedName("rol")
     private String rol;
+    private String token;
+    private String refreshToken;
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public String getId() {
         return id;

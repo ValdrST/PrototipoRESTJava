@@ -7,8 +7,10 @@ package xyz.somch.filtro;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +25,8 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import static javax.ws.rs.core.Response.Status.FOUND;
+import static javax.ws.rs.core.Response.Status.OK;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.lang.JoseException;
 import xyz.somch.jwt.TokenSecurity;
@@ -43,7 +47,7 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
     public static final String HEADER_PROPERTY_ID = "id";
     public static final String AUTHORIZATION_PROPERTY = "Bearer";
 
-    private static final String ACCESS_REFRESH = "refrescar token";
+    private static final String ACCESS_REFRESH = "Refresh Token";
     private static final String ACCESS_INVALID_TOKEN = "token invalido!";
     private static final String ACCESS_DENIED = "no puedes ver esto prro!";
     private static final String ACCESS_FORBIDDEN = "Acceso prohibido!";
@@ -94,16 +98,27 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
                 headers.put(HEADER_PROPERTY_ID, idList);
             }
         } catch (InvalidJwtException ex) {
+            System.out.println("Refresh token");
             usuario = new UserBD();
             String id = (String) ex.getJwtContext().getJwtClaims().getClaimValue("id");
             User user = usuario.findByID(id).get(0);
             if (usuario.getSesion(usuario.findByID(id).get(0)) && ex.hasExpired()) {
                 try {
-                    String jwt = TokenSecurity.refreshJwtToken(user);
-                    Map<String, Object> bearer = new HashMap<String, Object>();
-                    bearer.put(AUTHORIZATION_PROPERTY, jwt);
-                    requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.OK, bearer));
-                    return;
+                    String jwt = ex.getJwtContext().getJwt();
+                    if (usuario.getToken(user).equals(jwt)) {
+                        jwt = TokenSecurity.refreshJwtToken(user);
+                        user.setToken(jwt);
+                        user.setRefreshToken((new SimpleDateFormat("HHmmssddMMyyyy")).format((new Date())));
+                        if (usuario.actualizarUsuario(user, user)) {
+                            Response response = ConstructorResponse.createResponse(Response.Status.OK, ACCESS_REFRESH);
+                            response = Response.status(OK).header(AUTHORIZATION_PROPERTY,jwt).entity(response.getEntity()).build();
+                            requestContext.abortWith(response);
+                        } else {
+                            requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
+                        }
+                    }else {
+                        requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.FORBIDDEN, ACCESS_INVALID_TOKEN));
+                    }
                 } catch (JoseException ex1) {
                     requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
                 } catch (Exception ex1) {
@@ -115,8 +130,6 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
 
     private boolean isUserAllowed(final String userRole, final Set<String> rolesSet) {
         boolean isAllowed = false;
-        System.out.println("los roles" + rolesSet.toString());
-        System.out.println("rol" + userRole);
         if (rolesSet.contains(userRole)) {
             isAllowed = true;
         }

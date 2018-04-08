@@ -15,13 +15,20 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import static javax.ws.rs.core.Response.Status.FOUND;
 import org.glassfish.jersey.server.ResourceConfig;
 import xyz.somch.filtro.FiltroAutorizacion;
+import static xyz.somch.filtro.FiltroAutorizacion.AUTHORIZATION_PROPERTY;
 import static xyz.somch.jwt.TokenSecurity.generarJwt;
+import static xyz.somch.jwt.TokenSecurity.getClaimsJwtToken;
 import xyz.somch.model.User;
 import xyz.somch.model.UserBD;
 import xyz.somch.login.Login;
@@ -34,23 +41,28 @@ import xyz.somch.login.Login;
 @Path("/user")
 public class LoginREST extends ResourceConfig {
 
+    @Context
+    private ContainerRequestContext requestContext;
+
     @POST
     @PermitAll
     @Path("/login")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes("application/json")
+    @Produces("application/json")
     public Response autenticarUsuario(User user) {
         try {
             UserBD controlador = new UserBD();
-
             Login.autenticarUsuario(user);
             System.out.println(user.toString());
             user = controlador.findByNombre(user.getNombre()).get(0);
             String token = generarJwt(user);
-            Map<String, Object> map = new HashMap();
-            controlador.setSesion(user, true);
-            map.put(FiltroAutorizacion.AUTHORIZATION_PROPERTY, token);
-            return ConstructorResponse.createResponse(Response.Status.FOUND, map);
+            user.setToken(token);
+            if (controlador.actualizarUsuario(user, user)) {
+                controlador.setSesion(user, true);
+                return Response.status(FOUND).header(AUTHORIZATION_PROPERTY,token).entity(ConstructorResponse.createResponse(Response.Status.FOUND,"Sesion creada con exito").getEntity()).build();
+            } else {
+                return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, "error en la autenticacion");
+            }
         } catch (SecurityException se) {
             return ConstructorResponse.createResponse(Response.Status.OK, "Usuario o contraseña invalidos");
         } catch (Exception e) {
@@ -61,55 +73,109 @@ public class LoginREST extends ResourceConfig {
     @GET
     @RolesAllowed({"admin", "user"})
     @Path("/getAllUsers")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes("application/json")
+    @Produces("application/json")
     public Response obtenerUsuarios() {
         try {
             UserBD controlador = new UserBD();
-           
             System.out.println(controlador.findAll().toString());
-            return ConstructorResponse.createResponse(Response.Status.OK, (List)controlador.findAll());
+            return ConstructorResponse.createResponse(Response.Status.OK, (List) controlador.findAll());
         } catch (SecurityException se) {
             return ConstructorResponse.createResponse(Response.Status.OK, "Usuario o contraseña invalidos");
         } catch (Exception e) {
             return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-    
+
     @POST
     @PermitAll
     @Path("/registro")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response registrarUsuario(User usuario){
-        try{
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response registrarUsuario(User usuario) {
+        try {
             usuario.setRol("user");
             usuario.setUIID();
             UserBD controlador = new UserBD();
-            if(controlador.insertarUsuario(usuario)){
+            if (controlador.insertarUsuario(usuario)) {
                 return ConstructorResponse.createResponse(Response.Status.FOUND, "Usuario creado correctamente");
-            }else
-                return ConstructorResponse.createResponse(Response.Status.OK,"Error en la creacion del usuario");
-        }catch (Exception e) {
+            } else {
+                return ConstructorResponse.createResponse(Response.Status.OK, "Error en la creacion del usuario");
+            }
+        } catch (Exception e) {
             return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-    
+
     @DELETE
     @RolesAllowed({"admin", "user"})
     @Path("/borrar")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response borrarUsuario(User usuario){
-        try{
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response borrarUsuario(User usuario) {
+        try {
             UserBD controlador = new UserBD();
-            if(controlador.eliminarUsuario(usuario)){
+            if (controlador.eliminarUsuario(usuario)) {
                 return ConstructorResponse.createResponse(Response.Status.FOUND, "usuario borrado con exito");
-            }else
+            } else {
                 return ConstructorResponse.createResponse(Response.Status.OK, "Error en el borrado del usuario");
-        }catch (Exception e) {
+            }
+        } catch (Exception e) {
             return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
-    
+
+    @DELETE
+    @RolesAllowed({"admin", "user"})
+    @Path("/logout")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response cerrarSesion(User usuario) {
+        try {
+            System.out.println("Cerrar sesion");
+            UserBD controlador = new UserBD();
+            usuario = controlador.findByNombre(usuario.getNombre()).get(0);
+            controlador.setSesion(usuario, false);
+            usuario.setToken("");
+            usuario.setRefreshToken("");
+            if (controlador.actualizarUsuario(usuario, usuario)) {
+                return ConstructorResponse.createResponse(Response.Status.FOUND, "sesion cerrada con exito");
+            } else {
+                return ConstructorResponse.createResponse(Response.Status.OK, "error en cerrar sesion");
+            }
+        } catch (Exception e) {
+            return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @PUT
+    @RolesAllowed({"admin", "user"})
+    @Path("/modificar/{id}")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public Response modificarUsuario(@PathParam("id") String id, User usuario) {
+        try {
+            final MultivaluedMap<String, String> headers = requestContext.getHeaders();
+            final List<String> authProperty = headers.get(FiltroAutorizacion.AUTHORIZATION_PROPERTY);
+            UserBD controlador = new UserBD();
+            System.out.println(getClaimsJwtToken(authProperty.get(0)));
+            if (id.equals(getClaimsJwtToken(authProperty.get(0)))) {
+                User newUsuario = controlador.findByID(id).get(0);
+                User oldUsuario = newUsuario;
+                oldUsuario.setNombre(usuario.getNombre());
+                oldUsuario.setPassword(usuario.getPassword());
+                if (controlador.actualizarUsuario(oldUsuario, newUsuario)) {
+                    return ConstructorResponse.createResponse(Response.Status.FOUND, "Datos actualizados correctamente");
+                } else {
+                    return ConstructorResponse.createResponse(Response.Status.OK, "Error en la actualizacion de los datos");
+                }
+            }else {
+                return ConstructorResponse.createResponse(Response.Status.OK, "Usuario no autorizado a realizar cambios");
+            }
+
+        } catch (Exception e) {
+            return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
 }
