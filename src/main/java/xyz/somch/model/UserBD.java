@@ -18,7 +18,15 @@ import xyz.somch.db.ConexionBD;
  * @author dark_
  */
 public class UserBD implements UserDAO {
-
+    final String tableUserBD = "USUARIO";
+    final String tableRolBD = "ROL";
+    final String idUserBD = "ID_USUARIO";
+    final String nombreBD = "NOMBRE";
+    final String passwordBD = "PASSWORD";
+    final String idRolBD = "ID_ROL";
+    final String sesionBD = "SESION";
+    final String tokenBD = "TOKEN";
+    final String refreshTokenBD = "REFRESHTOKEN";
     @Override
     public List<User> findByID(String id) {
         try {
@@ -26,16 +34,15 @@ public class UserBD implements UserDAO {
             User usuario = new User();
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
-            stmt = conexion.prepareStatement("SELECT * FROM usuario WHERE id=?;");
+            stmt = conexion.prepareStatement("SELECT * FROM" + tableUserBD + "WHERE " + idUserBD + "=?;");
             stmt.setString(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                usuario.setId(rs.getString("id"));
-                usuario.setNombre(rs.getString("nombre"));
-                usuario.setPassword(rs.getString("password"));
-                usuario.setRol(rs.getString("rol"));
-                usuario.setToken(rs.getString("token"));
-                usuario.setRefreshToken("refreshToken");
+                usuario.setId(rs.getString(idUserBD));
+                usuario.setNombre(rs.getString(nombreBD));
+                usuario.setPassword(rs.getString(passwordBD));
+                usuario.setToken(rs.getString(tokenBD));
+                usuario.setRefreshToken(refreshTokenBD);
                 usuarios.add(usuario);
             }
             return usuarios;
@@ -51,17 +58,15 @@ public class UserBD implements UserDAO {
             List<User> usuarios = new ArrayList();
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
-            stmt = conexion.prepareStatement("SELECT * FROM usuario WHERE nombre=?;");
+            stmt = conexion.prepareStatement("SELECT * FROM" + tableUserBD + "WHERE " + nombreBD + "=?;");
             stmt.setString(1, nombre);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 User usuario = new User();
-                usuario.setId(rs.getString("id"));
-                usuario.setNombre(rs.getString("nombre"));
-                usuario.setPassword(rs.getString("password"));
-                usuario.setRol(rs.getString("rol"));
-                usuario.setToken(rs.getString("token"));
-                usuario.setRefreshToken(rs.getString("refreshToken"));
+                usuario.setId(rs.getString(idUserBD));
+                usuario.setNombre(rs.getString(nombreBD));
+                usuario.setPassword(rs.getString(passwordBD));
+                usuario.setRefreshToken(rs.getString(refreshTokenBD));
                 usuarios.add(usuario);
             }
             return usuarios;
@@ -77,38 +82,13 @@ public class UserBD implements UserDAO {
             List<User> usuarios = new ArrayList();
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
-            stmt = conexion.prepareStatement("SELECT id,nombre,password,rol FROM usuario;");
+            stmt = conexion.prepareStatement("SELECT " +idUserBD+", "+nombreBD+","+passwordBD+" FROM " + tableUserBD + ";");
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 User usuario = new User();
-                usuario.setId(rs.getString("id"));
-                usuario.setNombre(rs.getString("nombre"));
-                usuario.setPassword(rs.getString("password"));
-                usuario.setRol(rs.getString("rol"));
-                usuarios.add(usuario);
-            }
-            return usuarios;
-        } catch (SQLException | ClassNotFoundException ex) {
-            System.out.println(ex.getMessage());
-        }
-        return null;
-    }
-
-    @Override
-    public List<User> findRol(String rol) {
-        try {
-            List<User> usuarios = new ArrayList();
-            User usuario = new User();
-            Connection conexion = ConexionBD.crearConexion();
-            PreparedStatement stmt;
-            stmt = conexion.prepareStatement("SELECT * FROM usuario WHERE rol=?;");
-            stmt.setString(1, rol);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                usuario.setId(rs.getString("id"));
-                usuario.setNombre(rs.getString("nombre"));
-                usuario.setPassword(rs.getString("password"));
-                usuario.setRol(rs.getString("rol"));
+                usuario.setId(rs.getString(idUserBD));
+                usuario.setNombre(rs.getString(nombreBD));
+                usuario.setPassword(rs.getString(passwordBD));
                 usuarios.add(usuario);
             }
             return usuarios;
@@ -123,11 +103,10 @@ public class UserBD implements UserDAO {
         try {
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
-            stmt = conexion.prepareStatement("INSERT INTO usuario(id, nombre, password, rol) VALUES (?,?,?,?);");
+            stmt = conexion.prepareStatement("INSERT INTO usuario(id,"+ nombreBD+","+passwordBD+") VALUES (?,?,?,?);");
             stmt.setString(1, user.getId());
             stmt.setString(2, user.getNombre());
             stmt.setString(3, user.getPassword());
-            stmt.setString(4, user.getRol());
             int resultado = stmt.executeUpdate();
             return resultado > 0;
         } catch (SQLException | ClassNotFoundException ex) {

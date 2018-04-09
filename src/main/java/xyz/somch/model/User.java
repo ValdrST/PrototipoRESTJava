@@ -8,6 +8,7 @@ package xyz.somch.model;
 
 
 
+import java.util.List;
 import java.util.UUID;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -21,7 +22,7 @@ public class User implements JsonSerializable{
     private String id;
     private String nombre;
     private String password;
-    private String rol;
+    private List<String> rol;
     private String token;
     private String refreshToken;
 
@@ -65,11 +66,11 @@ public class User implements JsonSerializable{
         this.password = password;
     }
 
-    public String getRol() {
+    public List<String> getRol() {
         return rol;
     }
 
-    public void setRol(String rol) {
+    public void setRol(List<String> rol) {
         this.rol = rol;
     }
     

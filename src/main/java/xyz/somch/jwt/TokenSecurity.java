@@ -35,7 +35,7 @@ public class TokenSecurity {
 	    claims.setGeneratedJwtId(); 
 	    claims.setIssuedAtToNow();  
 	    claims.setNotBeforeMinutesInThePast(2); 
-	    claims.setClaim( "id", user.getId());
+            claims.setSubject(user.getId());
             claims.setClaim("rol" , user.getRol());
 	    JsonWebSignature jws = new JsonWebSignature();
 	    jws.setPayload(claims.toJson());

@@ -15,7 +15,6 @@ public interface UserDAO {
     public List<User> findByID(String id);
     public List<User> findByNombre(String nombre);
     public List<User> findAll();
-    public List<User> findRol(String rol);
     boolean insertarUsuario(User user);
     public boolean actualizarUsuario(User inUser, User outUser);
     boolean eliminarUsuario(User user);
