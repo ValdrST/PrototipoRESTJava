@@ -59,7 +59,8 @@ public class LoginREST extends ResourceConfig {
             user.setToken(token);
             if (controlador.actualizarUsuario(user, user)) {
                 controlador.setSesion(user, true);
-                return Response.status(FOUND).header(AUTHORIZATION_PROPERTY,token).entity(ConstructorResponse.createResponse(Response.Status.FOUND,"Sesion creada con exito").getEntity()).build();
+                Response response = ConstructorResponse.createResponse(Response.Status.FOUND, "sesion iniciada con exito");
+                return Response.status(FOUND).header(AUTHORIZATION_PROPERTY,token).entity(response.getEntity()).build();
             } else {
                 return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, "error en la autenticacion");
             }
