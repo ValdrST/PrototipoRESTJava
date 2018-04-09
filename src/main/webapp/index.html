@@ -1,10 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
     <head>
-        <title>Start Page</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="css/materialize.min.css" media="screen,projection">
+        <script src="js/jquery-3.3.1.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>RESTFul</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     </head>
     <body>
-        <h1>Hello World!</h1>
+
+        <nav>
+            <div class="nav-wrapper">
+                <a href="#" class="brand-logo">LOGO</a>
+                <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons dp48">dehaze</i></a>
+                <ul class="right hide-on-med-and-down">
+                    <li><a href="#">Inicio</a></li>
+                    <li><a href="#">Listar Usuarios</a></li>
+                    <li><a href="#">Buscar</a></li>
+                    <li><a href="#">Cerrar Sesion</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <ul class="sidenav" id="mobile-demo">
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#">Listar Usuarios</a></li>
+            <li><a href="#">Buscar</a></li>
+            <li><a href="#">Cerrar Sesion</a></li>
+        </ul>
+
+        <div class="container indigo lighten-5 s12 m6 l3">
+            <div class=""></div>
+            <div class="input-field col s12 m6">
+                <input id="nombre" type="text" class="validate" value="">
+                <label for="nombre">login</label>
+            </div>
+            <div class="input-field col s12 m6">
+                <input id="password" type="password" class="validate" value="">
+                <label for="password">Password</label>
+            </div>
+            <div class="center-align">
+                <button class="btn waves-effect waves-light" type="submit" name="action" id="login">Submit</button>
+            </div>
+        </div>
+        <script src="js/sha.js"></script>
+        <script src="js/sha512.js"></script>
+        <script src="js/materialize.js"></script>
+        <script src="js/form.js"></script>
     </body>
 </html>
