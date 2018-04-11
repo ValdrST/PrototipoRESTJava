@@ -5,26 +5,42 @@
  */
 package xyz.somch.model;
 
-
-
-
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import xyz.somch.utilidades.JsonSerializable;
+import javax.persistence.*;
 
 /**
  *
  * @author dark_
  */
-public class User implements JsonSerializable{
+@Entity
+@Table(name = "USUARIO")
+public class User implements JsonSerializable, Serializable {
+
+    @Id
+    @GeneratedValue
+    @Column(name = "ID_USUARIO")
     private String id;
+    @Column(name = "NOMBRE")
     private String nombre;
+    @Column(name = "PASSWORD")
     private String password;
-    private List<String> rol;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Rol> rol = new ArrayList<Rol>();
+    @Column(name = "TOKEN")
     private String token;
+    @Column(name = "SESION")
+    private Boolean sesion;
+    @Column(name = "REFRESHTOKEN")
     private String refreshToken;
+
+    public User() {
+    }
 
     public String getRefreshToken() {
         return refreshToken;
@@ -66,25 +82,37 @@ public class User implements JsonSerializable{
         this.password = password;
     }
 
-    public List<String> getRol() {
+    public List<Rol> getRol() {
         return rol;
     }
 
-    public void setRol(List<String> rol) {
+    public Boolean getSesion() {
+        return sesion;
+    }
+
+    public void setSesion(Boolean sesion) {
+        this.sesion = sesion;
+    }
+
+    public void setRol(List<Rol> rol) {
         this.rol = rol;
     }
-    
-    public void setUIID(){
+
+    public void addRol(Rol rol) {
+        this.rol.add(rol);
+    }
+
+    public void setUIID() {
         id = UUID.randomUUID().toString().replace("-", "");
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         return "id: " + id + " nombre: " + nombre + " password: " + password;
     }
 
     @Override
-    public JSONObject toJson() throws JSONException{
+    public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("id", getId());
         json.put("nombre", getNombre());
@@ -93,5 +121,5 @@ public class User implements JsonSerializable{
         return json;
 
     }
-    
+
 }

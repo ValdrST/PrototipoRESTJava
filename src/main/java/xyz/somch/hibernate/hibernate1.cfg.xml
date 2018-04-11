@@ -1,0 +1,29 @@
+
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+
+        <!-- parametros para la conexion a la base de datos -->
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/REST</property>
+        <property name="connection.username">valdr</property>
+        <property name="connection.password">nomad123</property>
+
+        <!-- Configuracion del pool interno -->
+        <property name="connection.pool_size">1</property>
+
+        <!-- Dialecto de la base de datos -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+
+        <!-- Otras propiedades importantes -->
+        <property name="show_sql">true</property>
+        <property name="hbm2ddl.auto">create-drop</property>
+        <mapping class="xyz.somch.model.User"/>
+        <mapping class="xyz.somch.model.Rol"/>
+        
+        <!-- Aqui iran los archivos de mapeo -->
+        
+    </session-factory>
+</hibernate-configuration>

@@ -11,10 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -25,7 +23,6 @@ import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import static javax.ws.rs.core.Response.Status.FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.lang.JoseException;
@@ -80,7 +77,7 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
                 String id = getClaimsJwtToken(jwt);
                 User userLogin = usuario.findByID(id).get(0);
                 String password = userLogin.getPassword();
-                if (!usuario.getSesion(userLogin)) {
+                if (!userLogin.getSesion()) {
                     requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.UNAUTHORIZED, ACCESS_NO_SESSION));
                     return;
                 }
@@ -102,10 +99,10 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
             usuario = new UserBD();
             String id = (String) ex.getJwtContext().getJwtClaims().getClaimValue("id");
             User user = usuario.findByID(id).get(0);
-            if (usuario.getSesion(usuario.findByID(id).get(0)) && ex.hasExpired()) {
+            if (user.getSesion() && ex.hasExpired()) {
                 try {
                     String jwt = ex.getJwtContext().getJwt();
-                    if (usuario.getToken(user).equals(jwt)) {
+                    if (user.getToken().equals(jwt)) {
                         jwt = TokenSecurity.refreshJwtToken(user);
                         user.setToken(jwt);
                         user.setRefreshToken((new SimpleDateFormat("HHmmssddMMyyyy")).format((new Date())));
@@ -128,9 +125,9 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
         }
     }
 
-    private boolean isUserAllowed(final String userRole, final Set<String> rolesSet) {
+    private boolean isUserAllowed(final List userRole, final Set<String> rolesSet) {
         boolean isAllowed = false;
-        if (rolesSet.contains(userRole)) {
+        if (rolesSet.contains(userRole.get(0))) {
             isAllowed = true;
         }
         return isAllowed;

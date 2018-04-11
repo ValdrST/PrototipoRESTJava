@@ -5,13 +5,11 @@
  */
 package xyz.somch.model;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import xyz.somch.db.ConexionBD;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import xyz.somch.hibernate.HibernateUtil;
 
 /**
  *
@@ -27,9 +25,17 @@ public class UserBD implements UserDAO {
     final String sesionBD = "SESION";
     final String tokenBD = "TOKEN";
     final String refreshTokenBD = "REFRESHTOKEN";
+    
     @Override
     public List<User> findByID(String id) {
-        try {
+        Session sesion = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = sesion.beginTransaction();
+        String hql = "FROM User user WHERE user.id = "+id;
+        Query query = sesion.createQuery(hql);
+        tx.commit();
+        sesion.close();
+        return query.list();
+        /*try {
             List<User> usuarios = new ArrayList();
             User usuario = new User();
             Connection conexion = ConexionBD.crearConexion();
@@ -49,12 +55,19 @@ public class UserBD implements UserDAO {
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
-        return null;
+        return null;*/
     }
 
     @Override
     public List<User> findByNombre(String nombre) {
-        try {
+        Session sesion = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = sesion.beginTransaction();
+        String hql = "FROM User user WHERE user.nombre = "+nombre;
+        Query query = sesion.createQuery(hql);
+        tx.commit();
+        sesion.close();
+        return query.list();
+        /*try {
             List<User> usuarios = new ArrayList();
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
@@ -73,12 +86,19 @@ public class UserBD implements UserDAO {
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
-        return null;
+        return null;*/
     }
 
     @Override
     public List<User> findAll() {
-        try {
+        Session sesion = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = sesion.beginTransaction();
+        String hql = "FROM User";
+        Query query = sesion.createQuery(hql);
+        tx.commit();
+        sesion.close();
+        return query.list();
+        /*try {
             List<User> usuarios = new ArrayList();
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
@@ -95,12 +115,19 @@ public class UserBD implements UserDAO {
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
-        return null;
+        return null;*/
     }
 
     @Override
     public boolean insertarUsuario(User user) {
-        try {
+        Session sesion = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = sesion.beginTransaction();
+        user.addRol(new Rol("User"));
+        sesion.save(user);
+        tx.commit();
+        sesion.close();
+        return true;
+        /*try {
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
             stmt = conexion.prepareStatement("INSERT INTO usuario(id,"+ nombreBD+","+passwordBD+") VALUES (?,?,?,?);");
@@ -112,10 +139,24 @@ public class UserBD implements UserDAO {
         } catch (SQLException | ClassNotFoundException ex) {
             System.out.println(ex.getMessage());
         }
-        return false;
+        return false;*/
     }
-
+    /*
     public boolean setSesion(User user, Boolean sesion) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = session.beginTransaction();
+        String hql = "UPDATE User set  sesion = :sesion WHERE id = :id_usuario";
+        Query query = session.createQuery(hql);
+        query.setParameter("sesion", sesion);
+        query.setParameter("id_usuario", user.getId());
+        int res = query.executeUpdate();
+        if(res==0){
+            session.close();
+            return false;
+        }else{
+            session.close();
+            return true;
+        }
         try {
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
@@ -128,24 +169,8 @@ public class UserBD implements UserDAO {
             System.out.println(ex.getMessage());
         }
         return false;
-    }
-
-    public boolean getSesion(User user) {
-        try {
-            Connection conexion = ConexionBD.crearConexion();
-            PreparedStatement stmt;
-            stmt = conexion.prepareStatement("SELECT sesion FROM usuario WHERE id=?;");
-            stmt.setString(1, user.getId());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getBoolean("sesion");
-            }
-        } catch (SQLException | ClassNotFoundException ex) {
-            System.out.println(ex.getMessage());
-        }
-        return false;
-    }
-    
+    } 
+   
     public boolean setToken(User user) {
         try {
             Connection conexion = ConexionBD.crearConexion();
@@ -207,11 +232,18 @@ public class UserBD implements UserDAO {
             System.out.println(ex.getMessage());
         }
         return null;
-    }
+    }*/
 
     @Override
     public boolean actualizarUsuario(User oldUser, User newUser) {
-        try {
+        Session sesion = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = sesion.beginTransaction();
+        sesion.update(newUser);
+        tx.commit();
+        sesion.close();
+        return true;
+    }
+        /*try {
             
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
@@ -229,11 +261,19 @@ public class UserBD implements UserDAO {
             System.out.println(ex.getMessage());
         }
         return false;
-    }
+    }*/
 
     @Override
     public boolean eliminarUsuario(User user) {
-        try {
+        Session sesion = HibernateUtil.getSessionFactory().openSession();
+        User u = (User)sesion.get(User.class, user.getId());
+        Transaction tx = sesion.beginTransaction();
+        sesion.delete(u);
+        tx.commit();
+        sesion.close();
+        return true;
+    }
+        /*try {
             Connection conexion = ConexionBD.crearConexion();
             PreparedStatement stmt;
             stmt = conexion.prepareStatement("DELETE FROM usuario WHERE id=? AND nombre=? AND password=? AND rol=?;");
@@ -247,6 +287,6 @@ public class UserBD implements UserDAO {
             System.out.println(ex.getMessage());
         }
         return false;
-    }
+    }*/
 
 }
