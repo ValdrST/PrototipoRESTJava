@@ -24,13 +24,6 @@
         </dependency>
         
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>5.0.12.Final</version>
-            <type>jar</type>
-        </dependency>
-        
-        <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <version>2.7.1</version>
@@ -48,12 +41,14 @@
             <version>5.1.41</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
             <version>0.6.3</version>
             <type>jar</type>
         </dependency>
+        
         
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
@@ -75,17 +70,27 @@
             <artifactId>jersey-json</artifactId>
             <version>1.8</version>
         </dependency>
+        
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.2.4</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-entitymanager</artifactId>
-            <version>4.3.1.Final</version>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.0.12.Final</version>
+            <type>jar</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.hibernate.common</groupId>
+            <artifactId>hibernate-commons-annotations</artifactId>
+            <version>5.0.3.Final</version>
+        </dependency>
+        
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
@@ -123,12 +128,6 @@
             </exclusions>
         </dependency>
         
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-annotations</artifactId>
-            <version>3.5.6-Final</version>
-        </dependency>
-
     </dependencies>
 
     <build>
