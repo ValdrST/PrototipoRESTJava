@@ -5,23 +5,19 @@
  */
 package xyz.somch.db;
 
-
-import java.sql.SQLException;
-import java.sql.Connection;
-import java.sql.DriverManager;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 /**
  *
  * @author dark_
  */
 public class ConexionBD {
-    public static Connection crearConexion() throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection conexion;
-        conexion = DriverManager.getConnection(ConstantesBD.dbUrl, ConstantesBD.dbUser, ConstantesBD.dbPwd);
-        return conexion;
+    public static SessionFactory crearConexion() {
+        SessionFactory factory = new Configuration().configure().buildSessionFactory();
+        return factory;
     }
     
-    public static void destruirConexion(Connection conexion) throws SQLException {
-        conexion.close();
+    public static void destruirConexion(SessionFactory factory){
+        factory.close();
     }
 }

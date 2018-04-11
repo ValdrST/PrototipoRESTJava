@@ -57,8 +57,8 @@ public class LoginREST extends ResourceConfig {
             user = controlador.findByNombre(user.getNombre()).get(0);
             String token = generarJwt(user);
             user.setToken(token);
+            user.setSesion(true);
             if (controlador.actualizarUsuario(user, user)) {
-                controlador.setSesion(user, true);
                 Response response = ConstructorResponse.createResponse(Response.Status.FOUND, "sesion iniciada con exito");
                 return Response.status(FOUND).header(AUTHORIZATION_PROPERTY,token).entity(response.getEntity()).build();
             } else {
@@ -95,7 +95,6 @@ public class LoginREST extends ResourceConfig {
     @Produces("application/json")
     public Response registrarUsuario(User usuario) {
         try {
-            usuario.setRol("user");
             usuario.setUIID();
             UserBD controlador = new UserBD();
             if (controlador.insertarUsuario(usuario)) {
@@ -136,7 +135,7 @@ public class LoginREST extends ResourceConfig {
             System.out.println("Cerrar sesion");
             UserBD controlador = new UserBD();
             usuario = controlador.findByNombre(usuario.getNombre()).get(0);
-            controlador.setSesion(usuario, false);
+            usuario.setSesion(false);
             usuario.setToken("");
             usuario.setRefreshToken("");
             if (controlador.actualizarUsuario(usuario, usuario)) {

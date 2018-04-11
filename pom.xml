@@ -41,12 +41,14 @@
             <version>5.1.41</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>org.bitbucket.b_c</groupId>
             <artifactId>jose4j</artifactId>
             <version>0.6.3</version>
             <type>jar</type>
         </dependency>
+        
         
         <dependency>
             <groupId>org.codehaus.jettison</groupId>
@@ -68,17 +70,32 @@
             <artifactId>jersey-json</artifactId>
             <version>1.8</version>
         </dependency>
+        
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.2.4</version>
             <type>jar</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>5.0.12.Final</version>
+            <type>jar</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.hibernate.common</groupId>
+            <artifactId>hibernate-commons-annotations</artifactId>
+            <version>5.0.3.Final</version>
+        </dependency>
+        
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
             <version>7.0</version>
-            <scope>provided</scope>
+            <type>jar</type>
         </dependency>
         
         <dependency>
@@ -86,16 +103,19 @@
             <artifactId>jaxb-impl</artifactId>
             <version>2.0.1</version>
         </dependency>
+        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
             <version>2.9.5</version>
         </dependency>
+        
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.9.5</version>
         </dependency>
+        
         <dependency>
             <groupId>com.wordnik</groupId>
             <artifactId>swagger-jersey-jaxrs_2.10</artifactId>
@@ -107,6 +127,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        
     </dependencies>
 
     <build>
