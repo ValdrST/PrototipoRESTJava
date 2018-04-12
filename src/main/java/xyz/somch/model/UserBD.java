@@ -8,7 +8,9 @@ package xyz.somch.model;
 import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 import xyz.somch.db.ConexionBD;
 
 /**
@@ -22,10 +24,10 @@ public class UserBD implements UserDAO {
         Session sesion = ConexionBD.crearConexion().openSession();
         Transaction tx = sesion.beginTransaction();
         String hql = "FROM User user WHERE user.id = " + id;
-        Query query = sesion.createQuery(hql);
+        List<User> user = (List<User>) sesion.createQuery("From User user WHERE user.id = "+ id).list();
         tx.commit();
         sesion.close();
-        return query.list();
+        return user;
         /*try {
             List<User> usuarios = new ArrayList();
             User usuario = new User();
@@ -52,7 +54,9 @@ public class UserBD implements UserDAO {
     @Override
     public List<User> findByNombre(String nombre) {
         
-        Session sesion = ConexionBD.crearConexion().openSession();
+         // = ConexionBD.crearConexion().openSession();
+        SessionFactory sessionfactory =  new Configuration().configure().buildSessionFactory();
+        Session sesion = sessionfactory.openSession();
         Transaction tx = sesion.beginTransaction();
         String hql = "FROM User user WHERE user.nombre = " + nombre;
         Query query = sesion.createQuery(hql);

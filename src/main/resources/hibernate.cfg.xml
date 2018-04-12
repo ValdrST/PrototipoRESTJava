@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN" "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -40,13 +40,24 @@ made subject to such option by the copyright holder.
 Contributor(s):
 -->
 <hibernate-configuration>
-  <session-factory>
-    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
-    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/mydb?zeroDateTimeBehavior=convertToNull</property>
-    <property name="hibernate.connection.username">valdr</property>
-    <property name="hibernate.connection.password">nomad123</property>
-    <mapping class="xyz.somch.model.User"/>
-    <mapping class="xyz.somch.model.Rol"/>
-  </session-factory>
+    <session-factory>
+        <property name="connection.url">jdbc:mysql://localhost:3306/usuarios</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.username">valdr</property>
+        <property name="hibernate.connection.password">nomad123</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.connection.release_mode">auto</property>
+        <property name="current_session_context_class">thread</property>
+        <property name="hibernate.connection.autoReconnect">true</property>
+ 
+
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.use_sql_comments">true</property>
+
+        <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+        <mapping class="xyz.somch.model.User"/>
+        <mapping class="xyz.somch.model.Rol"/>
+    </session-factory>
 </hibernate-configuration>
