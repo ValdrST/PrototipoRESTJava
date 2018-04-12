@@ -13,12 +13,13 @@ import xyz.somch.model.UserBD;
  * @author dark_
  */
 public class Login {
-    public static void autenticarUsuario(User usuario) {
+    public static User autenticarUsuario(User usuario) {
         UserBD usuarioBD = new UserBD();
         User usuarioSec;
         usuarioSec = usuarioBD.findByNombre(usuario.getNombre()).get(0);
         if(!usuario.getPassword().equals(usuarioSec.getPassword())){
             throw new SecurityException("Usuario o contraseña invalidos");
-        }
+        }else
+            return usuarioSec;
     }
 }

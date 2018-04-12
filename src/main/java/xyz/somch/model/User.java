@@ -21,27 +21,31 @@ import javax.persistence.*;
 @Entity
 @Table(name = "USUARIO")
 public class User implements JsonSerializable, Serializable {
-
-    @Id
-    @GeneratedValue
-    @Column(name = "ID_USUARIO")
+    
     private String id;
-    @Column(name = "NOMBRE")
+    
+    
     private String nombre;
-    @Column(name = "PASSWORD")
+    
+    
     private String password;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Rol> rol = new ArrayList<Rol>();
-    @Column(name = "TOKEN")
+    
+    
+    private List<Rol> rol = new ArrayList();
+    
+    
     private String token;
-    @Column(name = "SESION")
+    
+    
     private Boolean sesion;
-    @Column(name = "REFRESHTOKEN")
+    
+    
     private String refreshToken;
 
     public User() {
     }
-
+    
+    @Column(name = "REFRESHTOKEN")
     public String getRefreshToken() {
         return refreshToken;
     }
@@ -49,7 +53,8 @@ public class User implements JsonSerializable, Serializable {
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
     }
-
+    
+    @Column(name = "TOKEN")
     public String getToken() {
         return token;
     }
@@ -57,7 +62,8 @@ public class User implements JsonSerializable, Serializable {
     public void setToken(String token) {
         this.token = token;
     }
-
+    @Id
+    @Column(name = "ID_USUARIO", unique=true, nullable=false)
     public String getId() {
         return id;
     }
@@ -65,7 +71,7 @@ public class User implements JsonSerializable, Serializable {
     public void setId(String id) {
         this.id = id;
     }
-
+    @Column(name = "NOMBRE")
     public String getNombre() {
         return nombre;
     }
@@ -73,7 +79,8 @@ public class User implements JsonSerializable, Serializable {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
+    
+    @Column(name = "PASSWORD")
     public String getPassword() {
         return password;
     }
@@ -81,11 +88,16 @@ public class User implements JsonSerializable, Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
-
+    
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "ROL_USUARIO", joinColumns = {
+    @JoinColumn(name="ID_USUARIO", nullable = false, updatable=false)
+    })
     public List<Rol> getRol() {
         return rol;
     }
-
+    
+    @Column(name = "SESION")
     public Boolean getSesion() {
         return sesion;
     }

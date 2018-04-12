@@ -5,28 +5,34 @@
  */
 package xyz.somch.hibernate;
 
-import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.service.ServiceRegistry;
 /**
  *
  * @author dark_
  */
 public class HibernateUtil {
-    private static final SessionFactory sessionFactory;
-    static{
-        try{
-            sessionFactory = new Configuration().configure().buildSessionFactory();
-        }
-        catch (HibernateException he){
-            System.err.println("Ocurrió un error en la inicialización de la SessionFactory: " + he);
-            throw new ExceptionInInitializerError(he);
+    
+    private static final SessionFactory sessionFactory = buildSessionFactory();
+    
+    private static SessionFactory buildSessionFactory(){
+        try {
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
+            Metadata metadata = new MetadataSources(serviceRegistry).getMetadataBuilder().build();
+            return metadata.getSessionFactoryBuilder().build();
+        }catch (Throwable ex) {
+            throw new ExceptionInInitializerError(ex);
         }
     }
-
-    public static SessionFactory getSessionFactory()
-    {
+    
+    public static SessionFactory getSessionFactory() {
         return sessionFactory;
     }
     
+    public static void cerrarConexion(){
+        getSessionFactory().close();
+    }
 }

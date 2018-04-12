@@ -5,9 +5,7 @@
  */
 package xyz.somch.prototiporestjava;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
@@ -52,9 +50,9 @@ public class LoginREST extends ResourceConfig {
     public Response autenticarUsuario(User user) {
         try {
             UserBD controlador = new UserBD();
-            Login.autenticarUsuario(user);
+            user = Login.autenticarUsuario(user);
             System.out.println(user.toString());
-            user = controlador.findByNombre(user.getNombre()).get(0);
+            System.out.println("Aqui llego");
             String token = generarJwt(user);
             user.setToken(token);
             user.setSesion(true);
@@ -67,7 +65,7 @@ public class LoginREST extends ResourceConfig {
         } catch (SecurityException se) {
             return ConstructorResponse.createResponse(Response.Status.OK, "Usuario o contraseña invalidos");
         } catch (Exception e) {
-            return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
 
