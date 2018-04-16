@@ -20,10 +20,10 @@ public class Rol {
     private int id;
     private String nombre;
     private List<User> usuarios;
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "ROL_USUARIO", joinColumns = {
     @JoinColumn(name="ID_ROL", nullable = false, updatable=false)
-    })
+    },inverseJoinColumns= @JoinColumn(name="ID_USUARIO"))
     public List<User> getUsuarios() {
         return usuarios;
     }
@@ -57,4 +57,8 @@ public class Rol {
         this.nombre = nombre;
     }
     
+    @Override
+    public String toString(){
+        return nombre;
+    }
 }

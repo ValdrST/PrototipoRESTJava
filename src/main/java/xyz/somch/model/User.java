@@ -89,12 +89,21 @@ public class User implements JsonSerializable, Serializable {
         this.password = password;
     }
     
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "ROL_USUARIO", joinColumns = {
-    @JoinColumn(name="ID_USUARIO", nullable = false, updatable=false)
-    })
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "ROL_USUARIO", joinColumns = 
+    @JoinColumn(name="ID_USUARIO", nullable = false, updatable=false), 
+    inverseJoinColumns=@JoinColumn(name="ID_ROL")
+    )
     public List<Rol> getRol() {
         return rol;
+    }
+    
+    public String listRolToString() {
+        String roles="";
+        for(int i=0;i<rol.size();i++){
+            roles= roles + "|"+ rol.get(i).toString()+"|";
+        }
+        return roles;
     }
     
     @Column(name = "SESION")
@@ -120,7 +129,7 @@ public class User implements JsonSerializable, Serializable {
 
     @Override
     public String toString() {
-        return "id: " + id + " nombre: " + nombre + " password: " + password;
+        return "id: " + id + " nombre: " + nombre + " password: " + password + " rol: " + listRolToString();
     }
 
     @Override
