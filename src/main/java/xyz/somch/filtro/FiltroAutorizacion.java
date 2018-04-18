@@ -6,6 +6,7 @@
 package xyz.somch.filtro;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,10 +25,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import static javax.ws.rs.core.Response.Status.OK;
+import org.jose4j.jwt.MalformedClaimException;
 import org.jose4j.jwt.consumer.InvalidJwtException;
-import org.jose4j.lang.JoseException;
 import xyz.somch.jwt.TokenSecurity;
 import static xyz.somch.jwt.TokenSecurity.getClaimsJwtToken;
+import xyz.somch.model.Rol;
 import xyz.somch.model.User;
 import xyz.somch.model.UserBD;
 import xyz.somch.prototiporestjava.ConstructorResponse;
@@ -65,16 +67,17 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
                 final List<String> authProperty = headers.get(AUTHORIZATION_PROPERTY);
                 if (authProperty == null || authProperty.isEmpty()) {
                     System.out.println("No hay token");
-                    requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.UNAUTHORIZED, ACCESS_DENIED));
+                    requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.FORBIDDEN, ACCESS_DENIED));
                     return;
                 }
                 String jwt = authProperty.get(0);
                 if (jwt.equals("")) {
-                    requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.UNAUTHORIZED, ACCESS_NO_SESSION));
+                    requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.FORBIDDEN, ACCESS_NO_SESSION));
                     return;
                 }
                 usuario = new UserBD();
                 String id = getClaimsJwtToken(jwt);
+                System.out.println("iD; "+ id + "jwt: " + jwt);
                 User userLogin = usuario.findByID(id).get(0);
                 String password = userLogin.getPassword();
                 if (!userLogin.getSesion()) {
@@ -86,7 +89,7 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
                     RolesAllowed rolesAnnotation = method.getAnnotation(RolesAllowed.class);
                     Set<String> rolesSet = new HashSet<>(Arrays.asList(rolesAnnotation.value()));
                     if (!isUserAllowed(userLogin.getRol(), rolesSet)) {
-                        requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.UNAUTHORIZED, ACCESS_DENIED));
+                        requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.FORBIDDEN, ACCESS_DENIED));
                         return;
                     }
                 }
@@ -95,40 +98,48 @@ public class FiltroAutorizacion implements ContainerRequestFilter {
                 headers.put(HEADER_PROPERTY_ID, idList);
             }
         } catch (InvalidJwtException ex) {
-            System.out.println("Refresh token");
-            usuario = new UserBD();
-            String id = (String) ex.getJwtContext().getJwtClaims().getClaimValue("id");
-            User user = usuario.findByID(id).get(0);
-            if (user.getSesion() && ex.hasExpired()) {
-                try {
-                    String jwt = ex.getJwtContext().getJwt();
-                    if (user.getToken().equals(jwt)) {
-                        jwt = TokenSecurity.refreshJwtToken(user);
-                        user.setToken(jwt);
-                        user.setRefreshToken((new SimpleDateFormat("HHmmssddMMyyyy")).format((new Date())));
-                        if (usuario.actualizarUsuario(user, user)) {
-                            Response response = ConstructorResponse.createResponse(Response.Status.OK, ACCESS_REFRESH);
-                            response = Response.status(OK).header(AUTHORIZATION_PROPERTY,jwt).entity(response.getEntity()).build();
-                            requestContext.abortWith(response);
-                        } else {
-                            requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
+            try {
+                System.out.println("Refresh token");
+                usuario = new UserBD();
+                String id = (String) ex.getJwtContext().getJwtClaims().getSubject();
+                User user = usuario.findByID(id).get(0);
+                if (user.getSesion() && ex.hasExpired()) {
+                    try {
+                        String jwt = ex.getJwtContext().getJwt();
+                        if (user.getToken().equals(jwt)) {
+                            jwt = TokenSecurity.refreshJwtToken(user, ex.getJwtContext().getJwtClaims().getExpirationTime());
+                            user.setToken(jwt);
+                            user.setRefreshToken((new SimpleDateFormat("HHmmssddMMyyyy")).format((new Date())));
+                            if (usuario.actualizarUsuario(user, user)) {
+                                Response response = ConstructorResponse.createResponse(Response.Status.OK, ACCESS_REFRESH);
+                                response = Response.status(OK).header(AUTHORIZATION_PROPERTY,jwt).entity(response.getEntity()).build();
+                                requestContext.abortWith(response);
+                            } else {
+                                requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
+                            }
+                        }else {
+                            requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.FORBIDDEN, ACCESS_INVALID_TOKEN));
                         }
-                    }else {
-                        requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.FORBIDDEN, ACCESS_INVALID_TOKEN));
+                    } catch (Exception ex1) {
+                        requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
                     }
-                } catch (JoseException ex1) {
-                    requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
-                } catch (Exception ex1) {
-                    requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
                 }
+            } catch (MalformedClaimException ex1) {
+                requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
             }
+        } catch (UnsupportedEncodingException ex) {
+            requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
+        } catch (MalformedClaimException ex) {
+            requestContext.abortWith(ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, INTERNAL_ERROR));
         }
     }
 
-    private boolean isUserAllowed(final List userRole, final Set<String> rolesSet) {
+    private boolean isUserAllowed(final List<Rol> userRole, final Set<String> rolesSet) {
         boolean isAllowed = false;
-        if (rolesSet.contains(userRole.get(0))) {
+        System.out.println("ROLES: "+userRole.toString() + " "+ rolesSet.toString());
+        if (rolesSet.contains(userRole.get(0).getNombre())) {
             isAllowed = true;
+            System.out.println("VERDAD");
         }
         return isAllowed;
     }

@@ -21,10 +21,8 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import static javax.ws.rs.core.Response.Status.FOUND;
 import org.glassfish.jersey.server.ResourceConfig;
 import xyz.somch.filtro.FiltroAutorizacion;
-import static xyz.somch.filtro.FiltroAutorizacion.AUTHORIZATION_PROPERTY;
 import static xyz.somch.jwt.TokenSecurity.generarJwt;
 import static xyz.somch.jwt.TokenSecurity.getClaimsJwtToken;
 import xyz.somch.model.User;
@@ -57,8 +55,7 @@ public class LoginREST extends ResourceConfig {
             user.setToken(token);
             user.setSesion(true);
             if (controlador.actualizarUsuario(user, user)) {
-                Response response = ConstructorResponse.createResponse(Response.Status.FOUND, "sesion iniciada con exito");
-                return Response.status(FOUND).header(AUTHORIZATION_PROPERTY,token).entity(response.getEntity()).build();
+                return ConstructorResponse.createResponse(Response.Status.OK,token,"sesion iniciada con exito");
             } else {
                 return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, "error en la autenticacion");
             }
@@ -82,7 +79,7 @@ public class LoginREST extends ResourceConfig {
         } catch (SecurityException se) {
             return ConstructorResponse.createResponse(Response.Status.OK, "Usuario o contraseña invalidos");
         } catch (Exception e) {
-            return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ConstructorResponse.createResponse(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage() + e.toString());
         }
     }
 

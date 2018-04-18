@@ -49,6 +49,7 @@ public class UserBD implements UserDAO {
         SessionFactory factory = HibernateUtil.getSessionFactory();
         Session sesion = factory.getCurrentSession();
         sesion.getTransaction().begin();
+        sesion.clear();
         String hql = "FROM User";
         Query<User> query = sesion.createQuery(hql);
         sesion.close();

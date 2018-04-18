@@ -8,6 +8,8 @@ import org.jose4j.lang.JoseException;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jws.JsonWebSignature;
 import org.jose4j.jws.AlgorithmIdentifiers;
+import org.jose4j.jwt.MalformedClaimException;
+import org.jose4j.jwt.NumericDate;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtConsumer;
 import org.jose4j.jwt.consumer.JwtConsumerBuilder;
@@ -47,14 +49,14 @@ public class TokenSecurity {
 	    return jwt;
         }
 	
-	public static void validateJwtToken( String jwt, String secret ) throws InvalidJwtException, UnsupportedEncodingException {
+	public static void validateJwtToken( String jwt, String secret ) throws InvalidJwtException, UnsupportedEncodingException, MalformedClaimException {
             String[] datos = new String[2]; 
             JwtConsumer preJwtConsumer = new JwtConsumerBuilder()
                                 .setSkipSignatureVerification()
                                 .setSkipAllValidators()
                                 .build();
             JwtClaims preJwtClaims = preJwtConsumer.processToClaims(jwt);
-            String id =preJwtClaims.getClaimValue( "id" ).toString();
+            String id =preJwtClaims.getSubject();
             Key key = stringToHMAC( secret );
 	    JwtConsumer jwtConsumer = new JwtConsumerBuilder()
 	            .setRequireExpirationTime()
@@ -68,18 +70,34 @@ public class TokenSecurity {
         System.out.println( "JWT validacion hecha! " + jwtClaims );
 	}
         
-        public static String getClaimsJwtToken(String jwt) throws InvalidJwtException{
+        public static String getClaimsJwtToken(String jwt) throws InvalidJwtException, MalformedClaimException{
             JwtConsumer jwtConsumer = new JwtConsumerBuilder()
                                 .setSkipSignatureVerification()
                                 .setSkipAllValidators()
                                 .build();
             JwtClaims jwtClaims = jwtConsumer.processToClaims(jwt);
-            String id = (String) jwtClaims.getClaimValue("id");
+            String id = jwtClaims.getSubject();
             return id;
         }
         
-        public static String refreshJwtToken( User user ) throws InvalidJwtException, JoseException, Exception{
-            String jwt = generarJwt(user);
-            return jwt;
+        public static String refreshJwtToken( User user, NumericDate time ) throws InvalidJwtException, JoseException, Exception{
+            System.out.println("TIME: " + time.getValue());
+            Key key = stringToHMAC( user.getPassword() );
+	    JwtClaims claims = new JwtClaims();
+	    claims.setIssuer( issuer );  
+	    claims.setExpirationTimeMinutesInTheFuture( tiempoDeExpiracion ); 
+	    claims.setGeneratedJwtId(); 
+	    claims.setIssuedAtToNow();  
+	    claims.setNotBeforeMinutesInThePast(2); 
+            claims.setSubject(user.getId());
+            claims.setClaim("rol" , user.getRol());
+	    JsonWebSignature jws = new JsonWebSignature();
+	    jws.setPayload(claims.toJson());
+            jws.setAlgorithmHeaderValue( AlgorithmIdentifiers.HMAC_SHA256 );
+	    jws.setKey(key);
+            jws.setDoKeyValidation(false);
+	    String jwt = jws.getCompactSerialization();
+            System.out.println( "token generado: "+jwt );
+	    return jwt;
         }
 }

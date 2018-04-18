@@ -20,7 +20,7 @@ public class HibernateUtil {
     
     private static SessionFactory buildSessionFactory(){
         try {
-            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().configure("hibernate.cfg.xml").build();
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder().configure().build();
             Metadata metadata = new MetadataSources(serviceRegistry).getMetadataBuilder().build();
             return metadata.getSessionFactoryBuilder().build();
         }catch (Throwable ex) {
